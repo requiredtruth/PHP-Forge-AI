@@ -1,0 +1,6 @@
+php_forge_ai_data/
+*.log
+.phpunit.result.cache
+__pycache__/
+*.py[cod]
+
