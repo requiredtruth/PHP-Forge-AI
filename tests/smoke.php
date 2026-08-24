@@ -53,6 +53,15 @@ PHP;
     check($forged['safety_ok'] === true, 'forged candidate contains no blocked execution calls');
     check(str_contains($forged['code'], 'function groupRecordsSafely'), 'requested safe identifier is preserved');
 
+    $reserved = $app->forge(
+        'Create a pipeline that applies a list of transformations.',
+        'class',
+        'class',
+        0.8,
+        5
+    );
+    check($reserved['name'] === 'GeneratedClass', 'reserved requested identifier is made safe');
+
     $app->reset();
     check(!is_file(PFA_MODEL_FILE) && !is_file(PFA_CORPUS_FILE), 'reset removes runtime corpus and checkpoint');
 } finally {

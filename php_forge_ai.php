@@ -468,7 +468,9 @@ final class PhpForgeAI
         }
         $specification = substr($specification, 0, 500);
         $kind = $kind === 'class' ? 'class' : 'function';
-        $name = $this->makeIdentifier($requestedName !== '' ? $requestedName : $specification, $kind);
+        $name = $requestedName !== ''
+            ? $this->sanitizeRequestedIdentifier($requestedName, $kind)
+            : $this->makeIdentifier($specification, $kind);
 
         $seed = "<?php\ndeclare(strict_types=1);\n\n/**\n * Purpose: "
             . str_replace('*/', '* /', $specification) . "\n */\n"
@@ -908,6 +910,29 @@ final class PhpForgeAI
             return substr($studly, 0, 64);
         }
         return substr(lcfirst($studly), 0, 64);
+    }
+
+    private function sanitizeRequestedIdentifier(string $requested, string $kind): string
+    {
+        $identifier = (string) preg_replace('/[^A-Za-z0-9_]/', '', trim($requested));
+        if ($identifier === '') {
+            throw new InvalidArgumentException('The requested name must contain a PHP identifier.');
+        }
+        if (preg_match('/^[0-9]/', $identifier)) {
+            $identifier = 'Generated' . $identifier;
+        }
+        $reserved = [
+            'class', 'function', 'trait', 'interface', 'enum', 'extends', 'implements',
+            'public', 'protected', 'private', 'static', 'abstract', 'final', 'readonly',
+            'new', 'clone', 'match', 'namespace', 'use', 'return', 'yield', 'throw',
+        ];
+        if (in_array(strtolower($identifier), $reserved, true)) {
+            $identifier = 'Generated' . ucfirst($identifier);
+        }
+        if ($kind === 'class' && ctype_lower($identifier[0])) {
+            $identifier = ucfirst($identifier);
+        }
+        return substr($identifier, 0, 64);
     }
 
     private function detectStrategy(string $specification): string
