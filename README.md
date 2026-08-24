@@ -9,7 +9,7 @@ No Composer packages. No database. No remote AI API.
 Requirements: PHP 8.1+, `ext-curl`, `ext-json`, and a writable project directory.
 
 ```bash
-./doit.sh
+./install.sh
 ./run.sh
 ```
 
